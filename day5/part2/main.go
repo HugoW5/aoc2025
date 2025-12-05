@@ -13,6 +13,7 @@ var lowerRange []int
 var higherRange []int
 
 var freshIDs int = 0
+var overlaps int = 0
 
 func main() {
 	file, err := os.Open("day5/part2/input.txt")
@@ -35,13 +36,28 @@ func main() {
 		}
 	}
 
+	findOverlappingIntervals() // merge intervals
 	findFreshIDs()
-	fmt.Println(freshIDs)
+	fmt.Println(freshIDs - overlaps)
+}
+
+func findOverlappingIntervals() {
+	for i := 0; i < len(lowerRange); i++ {
+		for j := i + 1; j < len(lowerRange); j++ {
+
+			a1, a2 := lowerRange[i], higherRange[i]
+			b1, b2 := lowerRange[j], higherRange[j]
+
+			if a1 <= b2 && b1 <= a2 {
+				fmt.Printf("%v-%v & %v-%v overlap\n", a1, a2, b1, b2)
+				overlaps++
+			}
+		}
+	}
 }
 
 func findFreshIDs() {
-	for i := 0; i < len(lowerRange); i++ {
-		freshIDs += higherRange[i] - lowerRange[i]
-		fmt.Println(freshIDs)
+	for rangeIndex, low := range lowerRange {
+		freshIDs += higherRange[rangeIndex] - low
 	}
 }
