@@ -36,7 +36,8 @@ func main() {
 		}
 	}
 
-	findOverlappingIntervals() // merge intervals
+	findOverlappingIntervals()
+	// merge intervals
 	findFreshIDs()
 	fmt.Println(freshIDs - overlaps)
 }
