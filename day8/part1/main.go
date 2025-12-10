@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,7 @@ type JunctionBox struct {
 }
 
 var junctionBoxes []JunctionBox
+var connections [][]int = make([][]int, 20)
 
 func main() {
 	file, _ := os.Open("day8/part1/input.txt")
@@ -38,9 +40,33 @@ func main() {
 		}
 	}
 
-	fmt.Printf("%+v\n", findClosestBox(junctionBoxes[0]))
+	connectBoxes()
+	arr := mapCircuitBoxes()
+	fmt.Println("-----------")
+	for i, v := range arr {
+		fmt.Println(i, v)
+	}
+}
 
-	fmt.Println(junctionBoxes)
+func mapCircuitBoxes() []int {
+	var circuts []int = make([]int, 20)
+	for i := 0; i < len(connections); i++ {
+		for _, v := range connections[i] {
+			if slices.Contains(connections[v], i) {
+				break
+			}
+			circuts[i] += len(connections[v])
+		}
+		fmt.Println(i, connections[i])
+	}
+	return circuts
+}
+
+func connectBoxes() {
+	for _, box := range junctionBoxes {
+		closest := findClosestBox(box)
+		connections[closest.ID] = append(connections[closest.ID], box.ID)
+	}
 }
 
 func findClosestBox(b1 JunctionBox) JunctionBox {
@@ -49,7 +75,6 @@ func findClosestBox(b1 JunctionBox) JunctionBox {
 	for i, b2 := range junctionBoxes {
 		if b2.ID != b1.ID {
 			d := calculateDistance(b1, b2)
-			fmt.Println(d)
 			if d < distance {
 				distance = d
 				tmpBoxIndex = i
