@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,7 +22,7 @@ var junctionBoxes []JunctionBox
 var connections [][]int = make([][]int, 20)
 
 func main() {
-	file, _ := os.Open("day8/part1/input.txt")
+	file, _ := os.Open("input.txt")
 	scanner := bufio.NewScanner(file)
 	id := 0
 	for scanner.Scan() {
@@ -41,25 +42,30 @@ func main() {
 	}
 
 	connectBoxes()
+
 	arr := mapCircuitBoxes()
-	fmt.Println("-----------")
+	sort.Slice(arr, func(i, j int) bool {
+		return arr[i] > arr[j]
+	})
 	for i, v := range arr {
 		fmt.Println(i, v)
 	}
 }
 
 func mapCircuitBoxes() []int {
-	var circuts []int = make([]int, 20)
+	var conns []int
 	for i := 0; i < len(connections); i++ {
-		for _, v := range connections[i] {
-			if slices.Contains(connections[v], i) {
-				break
+		tmpLen := len(connections[i])
+		for j := 1; j < len(connections); j++ {
+			if slices.Contains(connections[i], j) {
+				tmpLen += len(connections[j])
 			}
-			circuts[i] += len(connections[v])
 		}
+
+		conns = append(conns, tmpLen)
 		fmt.Println(i, connections[i])
 	}
-	return circuts
+	return conns
 }
 
 func connectBoxes() {
@@ -71,7 +77,7 @@ func connectBoxes() {
 
 func findClosestBox(b1 JunctionBox) JunctionBox {
 	tmpBoxIndex := 0
-	var distance float64 = 1000000
+	var distance float64 = 100000000
 	for i, b2 := range junctionBoxes {
 		if b2.ID != b1.ID {
 			d := calculateDistance(b1, b2)
